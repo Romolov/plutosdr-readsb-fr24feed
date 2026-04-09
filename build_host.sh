@@ -15,6 +15,8 @@ bsdtar -xpf ArchLinuxARM-zedboard-latest.tar.gz -C "${BUILD_DIR}"
 
 rsync -a rootfs/. "${BUILD_DIR}"
 
+cp "${SCRIPT_DIR}/FR24FEED_VERSION" "${BUILD_DIR}/FR24FEED_VERSION"
+
 rm "${BUILD_DIR}/etc/resolv.conf"
 echo "nameserver 185.222.222.222" > "${BUILD_DIR}/etc/resolv.conf"
 
