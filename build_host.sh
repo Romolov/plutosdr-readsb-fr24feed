@@ -16,7 +16,7 @@ bsdtar -xpf ArchLinuxARM-zedboard-latest.tar.gz -C "${BUILD_DIR}"
 rsync -a rootfs/. "${BUILD_DIR}"
 
 rm "${BUILD_DIR}/etc/resolv.conf"
-echo "nameserver 8.8.8.8" > "${BUILD_DIR}/etc/resolv.conf"
+echo "nameserver 185.222.222.222" > "${BUILD_DIR}/etc/resolv.conf"
 
 mount -t proc /proc "${BUILD_DIR}/proc/"
 mount --rbind /sys "${BUILD_DIR}/sys/"
