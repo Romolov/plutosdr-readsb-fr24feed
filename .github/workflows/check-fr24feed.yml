@@ -2,8 +2,8 @@ name: Check for new fr24feed release
 
 on:
   schedule:
-    - cron: '0 8 * * *'  # daily at 08:00 UTC
-  workflow_dispatch:       # manual trigger
+    - cron: '0 8 * * *'
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -18,7 +18,6 @@ jobs:
       - name: Query latest fr24feed version from APT repo
         id: check
         run: |
-          # The APT Packages file is the canonical source of truth
           PACKAGES_URL="https://repo-feed.flightradar24.com/dists/flightradar24/raspberrypi-stable/binary-armhf/Packages"
 
           LATEST=$(curl -fsSL "$PACKAGES_URL" 2>/dev/null \
@@ -27,7 +26,6 @@ jobs:
             | head -1 \
             | awk '{print $2}')
 
-          # Fallback: try gzipped variant
           if [ -z "$LATEST" ]; then
             LATEST=$(curl -fsSL "${PACKAGES_URL}.gz" 2>/dev/null \
               | gunzip \
@@ -42,15 +40,22 @@ jobs:
             exit 0
           fi
 
+          # Verify the .tgz actually exists before bumping
+          HTTP_CODE=$(curl -sI -o /dev/null -w "%{http_code}" \
+            "https://repo-feed.flightradar24.com/rpi_binaries/fr24feed_${LATEST}_armhf.tgz")
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "::warning::APT says ${LATEST} but .tgz not found (HTTP ${HTTP_CODE}), skipping"
+            exit 0
+          fi
+
           echo "latest=$LATEST" >> "$GITHUB_OUTPUT"
-          echo "Latest fr24feed in APT repo: $LATEST"
+          echo "Latest fr24feed: $LATEST (.tgz confirmed)"
 
       - name: Read current tracked version
         id: current
         run: |
-          CURRENT=$(cat FR24FEED_VERSION 2>/dev/null | tr -d '[:space:]')
+          CURRENT=$(cat FR24FEED_VERSION | tr -d '[:space:]')
           echo "version=$CURRENT" >> "$GITHUB_OUTPUT"
-          echo "Currently tracked version: $CURRENT"
 
       - name: Bump version and push
         if: >-
@@ -59,18 +64,12 @@ jobs:
         run: |
           NEW="${{ steps.check.outputs.latest }}"
           OLD="${{ steps.current.outputs.version }}"
-          echo "Version change detected: $OLD -> $NEW"
+          echo "Version change: $OLD -> $NEW"
 
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
           echo "$NEW" > FR24FEED_VERSION
-
-          # Also update any hardcoded version in build_host.sh
-          if [ -n "$OLD" ] && [ "$OLD" != "unknown" ]; then
-            sed -i "s/${OLD}/${NEW}/g" build_host.sh || true
-          fi
-
-          git add -A
+          git add FR24FEED_VERSION
           git commit -m "bump fr24feed to ${NEW}"
           git push origin main
