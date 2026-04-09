@@ -11,7 +11,7 @@ cd /opt/readsb
 make PLUTOSDR=yes -j$(nproc)
 
 cd /opt
-FR24FEED_VERSION=$(cat /FR24FEED_VERSION 2>/dev/null || echo "1.0.54-0")
+FR24FEED_VERSION=$(cat /FR24FEED_VERSION)
 wget "https://repo-feed.flightradar24.com/rpi_binaries/fr24feed_${FR24FEED_VERSION}_armhf.tgz"
 tar xfvz "fr24feed_${FR24FEED_VERSION}_armhf.tgz"
 
