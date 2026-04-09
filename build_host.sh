@@ -87,11 +87,11 @@ umount "${BUILD_DIR}/dev"  2>/dev/null || true
 
 # copy the root fs to the ext4 partition
 rsync -a "${BUILD_DIR}/." "${EXT4_MOUNT}"
-rsync -a configfs/. "${FAT32_MOUNT}"
+rsync -a --no-owner --no-group --no-perms configfs/. "${FAT32_MOUNT}"
 
 # unmount the partitions
-umount "${FAT32_MOUNT}"
-umount "${EXT4_MOUNT}"
+umount "${FAT32_MOUNT}" || true
+umount "${EXT4_MOUNT}" || true
 
 # unmount the loop mount
 losetup -D "${loopdev}"
