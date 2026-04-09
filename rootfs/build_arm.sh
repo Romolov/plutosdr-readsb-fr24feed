@@ -1,6 +1,9 @@
 #!/bin/bash
 set -euo pipefail
 
+# Disable pacman sandbox features not supported in qemu chroot on CI
+sed -i 's/^DownloadUser/#DownloadUser/' /etc/pacman.conf
+
 pacman-key --init
 pacman-key --populate archlinuxarm
 
