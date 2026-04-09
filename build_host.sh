@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 
 apt update
 apt dist-upgrade -y
@@ -18,7 +19,7 @@ rsync -a rootfs/. "${BUILD_DIR}"
 cp "${SCRIPT_DIR}/FR24FEED_VERSION" "${BUILD_DIR}/FR24FEED_VERSION"
 
 rm "${BUILD_DIR}/etc/resolv.conf"
-echo "nameserver 185.222.222.222" > "${BUILD_DIR}/etc/resolv.conf"
+echo "nameserver 1.1.1.1" > "${BUILD_DIR}/etc/resolv.conf"
 
 mount -t proc /proc "${BUILD_DIR}/proc/"
 mount --rbind /sys "${BUILD_DIR}/sys/"
