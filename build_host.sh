@@ -77,13 +77,13 @@ mount "${loopdev}p1" "${FAT32_MOUNT}"
 mount "${loopdev}p2" "${EXT4_MOUNT}"
 
 # unmount the bind-mounts inside the chroot
-umount -fl "${BUILD_DIR}/proc"
-umount -fl "${BUILD_DIR}/sys"
-umount -fl "${BUILD_DIR}/dev"
+umount -fl "${BUILD_DIR}/proc" 2>/dev/null || true
+umount -fl "${BUILD_DIR}/sys"  2>/dev/null || true
+umount -fl "${BUILD_DIR}/dev"  2>/dev/null || true
 
-umount "${BUILD_DIR}/proc"
-umount "${BUILD_DIR}/sys"
-umount "${BUILD_DIR}/dev"
+umount "${BUILD_DIR}/proc" 2>/dev/null || true
+umount "${BUILD_DIR}/sys"  2>/dev/null || true
+umount "${BUILD_DIR}/dev"  2>/dev/null || true
 
 # copy the root fs to the ext4 partition
 rsync -a "${BUILD_DIR}/." "${EXT4_MOUNT}"
